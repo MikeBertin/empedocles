@@ -15,7 +15,7 @@ dependencies, no server: everything runs entirely in the browser.
 | | | |
 |---|---|---|
 | **[Methinks (the Weasel)](methinks/)** | Cumulative selection | Dawkins' weasel program. A population of random strings evolves toward a target. **Watch** it converge, **Race** a hill-climber against genetic algorithms with and without crossover, and run the **Lab** experiments — fitness-evaluations-to-solve vs population size — yourself. |
-| **HIFF — Modularity** | Building blocks | *(coming soon)* The Hierarchical-If-and-only-iff problem: nested building blocks where crossover is decisive and a mutation-only search stalls. The mirror image of the weasel. |
+| **[HIFF — Modularity](hiff/)** | Building blocks | The Hierarchical-If-and-only-iff problem: nested building blocks where crossover is decisive and a mutation-only search stalls. **Watch** the hierarchy assemble bottom-up, then **Race** mutation against recombination — the mirror image of the weasel. |
 | **Fitness Landscapes** | Search difficulty | *(coming soon)* Tune ruggedness on an NK landscape and watch a population climb — why some problems are easy and others deceive. |
 
 ## The thread
