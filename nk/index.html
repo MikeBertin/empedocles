@@ -68,6 +68,30 @@
   .legend i.sq{border-radius:3px}
   .note{color:var(--muted);font-size:13px;line-height:1.6;margin-top:16px;max-width:710px}
   .note b{color:var(--ink)}
+
+  /* "things to notice" + hover-explain popovers (ported from Chiron) */
+  .notice{margin-top:34px;border-top:1px solid var(--line);padding-top:24px}
+  .notice-title{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);margin:0 0 14px;font-weight:600}
+  .notice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.notice-grid{grid-template-columns:1fr}}
+  .ncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .ncard h3{margin:0 0 7px;font-size:14px;font-weight:600}
+  .ncard p{margin:0 0 11px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .x{color:var(--accent);border-bottom:1px dotted currentColor;cursor:help;white-space:nowrap}
+  .x::after{content:'ⓘ';font-size:.7em;vertical-align:.35em;margin-left:1px;opacity:.7}
+  .x:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+  #pop{position:fixed;z-index:60;max-width:300px;background:#15151f;border:1px solid #2e2e3e;
+    border-radius:12px;padding:13px 15px;box-shadow:0 22px 55px -16px #000,0 0 0 1px #000;
+    font-size:13px;line-height:1.55;visibility:hidden;opacity:0;transform:translateY(4px);
+    pointer-events:none;transition:opacity .13s,transform .13s}
+  #pop.show{visibility:visible;opacity:1;transform:none;pointer-events:auto}
+  #pop h4{margin:0 0 7px;font-size:13.5px;color:var(--accent)}
+  #pop p{margin:0 0 8px}#pop p:last-child{margin:0}
+  #pop b{color:var(--ink);font-weight:600}
+  #pop .muted{color:var(--muted);font-size:12px}
+  #pop .eq{font-family:var(--mono);background:#0e0e16;border:1px solid var(--line);border-radius:7px;
+    padding:8px 10px;margin:9px 0;font-size:13px;text-align:center;color:#e6ebff}
+  #pop .fig{display:block;margin:9px auto 5px}
   footer{margin-top:46px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.7}
   footer a{color:var(--accent);text-decoration:none}
 </style>
@@ -79,13 +103,14 @@
     <div class="badge">Search Difficulty</div>
     <h1>NK Fitness Landscapes</h1>
     <p class="lede">
-      Stuart Kauffman's <b>NK model</b> is a dial for <b>ruggedness</b>. Each of <b>N</b> genes contributes to
-      fitness depending on its own state and <b>K</b> others — so K is how much each gene's effect <i>depends on</i>
-      the rest (its <b>epistasis</b>). At <b>K&nbsp;=&nbsp;0</b> the landscape is <b>smooth</b>: nearby genotypes
-      have similar fitness, so hill-climbing always finds the top — like the
-      <a href="../methinks/" style="color:var(--accent)">weasel</a>. Crank K up and it dissolves into <b>noise</b>,
-      a mass of <b>local optima</b> — deceptive traps, like
-      <a href="../hiff/" style="color:var(--accent)">HIFF</a>. Drag the slider and watch it happen.
+      Stuart Kauffman's <b>NK model</b> is a dial for <span class="x" data-pop="ruggedness">ruggedness</span>. Each of
+      <b>N</b> genes contributes to fitness depending on its own state and <b>K</b> others — so K is how much each
+      gene's effect <i>depends on</i> the rest (its <span class="x" data-pop="epistasis">epistasis</span>). At
+      <b>K&nbsp;=&nbsp;0</b> the landscape is <b>smooth</b>: nearby genotypes have similar fitness, so hill-climbing
+      always finds the top — like the <a href="../methinks/" style="color:var(--accent)">weasel</a>. Crank K up and
+      it dissolves into <b>noise</b>, a mass of <span class="x" data-pop="localoptimum">local optima</span> —
+      deceptive traps, like <a href="../hiff/" style="color:var(--accent)">HIFF</a>. Drag the slider and watch it
+      happen.
     </p>
   </header>
 
@@ -124,7 +149,8 @@
     </div>
     <p class="note">
       Each tiny square is one <b>genotype</b>, laid out so that <b>neighbouring squares differ by a single mutation</b>
-      (both axes run in Gray-code order). Colour is fitness. At K&nbsp;=&nbsp;0 you get <b>smooth patches</b> — a real
+      (both axes run in <span class="x" data-pop="graycode">Gray-code order</span>). Colour is fitness. At
+      K&nbsp;=&nbsp;0 you get <b>smooth patches</b> — a real
       hill you can climb — because a gene's effect doesn't depend on the others. Raise K and the picture breaks into
       <b>static</b>: a <b>local optimum</b> (a square fitter than all its neighbours) appears almost everywhere, and
       a hill-climber landing on the <b>global</b> peak (gold) goes from a sure thing to a long shot.
@@ -159,6 +185,30 @@
       undiscoverable by local search. It's the quantitative reason recombination and other global operators matter,
       and the bridge from the weasel to HIFF.
     </p>
+  </section>
+
+  <section class="notice">
+    <h2 class="notice-title">Things to notice</h2>
+    <div class="notice-grid">
+      <div class="ncard">
+        <h3>K = 0 is a plaid</h3>
+        <p>At zero epistasis the heatmap shows clean stripes, not a blob. Fitness is a plain
+          <span class="x" data-pop="separable">sum of independent genes</span>, so each axis just adds its own bands —
+          one smooth peak, a 100% basin, hill-climbing never fails.</p>
+      </div>
+      <div class="ncard">
+        <h3>Why the basin collapses</h3>
+        <p>The "hill-climb finds best" stat falls off a cliff as K rises. More peaks means each
+          <span class="x" data-pop="basin">basin of attraction</span> is smaller, so a random start almost never
+          drains to the global one — the landscape is searchable but the answer is unfindable.</p>
+      </div>
+      <div class="ncard">
+        <h3>The highest peaks sit in the middle</h3>
+        <p>Global-peak fitness actually <em>rises</em> with K before levelling off:
+          <span class="x" data-pop="intermediateK">a little epistasis</span> creates taller peaks, but too much
+          shatters the basins so you can't climb them. Complexity has a sweet spot.</p>
+      </div>
+    </div>
   </section>
 
   <footer>
@@ -353,6 +403,67 @@ document.querySelectorAll('.tab').forEach(t=>{
   // placeholder
   fitCanvas(cv,460); ctx.fillStyle='#5a5a6a'; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center';
   ctx.fillText('Press “Run sweep” to measure ruggedness across all values of K', cv.clientWidth/2, 230);
+})();
+</script>
+
+<div id="pop" role="tooltip"></div>
+<script>
+const POP = {
+  ruggedness: { title:'Ruggedness', html:`
+    <p>How bumpy the landscape is — measured by the <b>number of local optima</b> and how fast fitness stops
+       correlating between neighbours. A smooth landscape has one peak; a rugged one has thousands.</p>
+    <p class="muted">In the NK model ruggedness is set entirely by K, from a single hill to pure noise.</p>` },
+  epistasis: { title:'Epistasis (K)', html:`
+    <p>A gene's contribution depends not just on itself but on <b>K other genes</b>. So the best setting for one gene
+       changes as others change — they can't be optimised independently.</p>
+    <div class="eq">fitness = (1/N) Σ&nbsp;f<sub>i</sub>(gene<sub>i</sub>, K neighbours)</div>
+    <p class="muted">K = 0 means no epistasis (genes independent); K = N−1 means every gene depends on every other.</p>` },
+  localoptimum: { title:'Local optimum', html:`
+    <p>A genotype that is <b>fitter than all its 1-mutation neighbours</b>. A hill-climber that reaches one is stuck —
+       every single change makes things worse — even if far better genotypes exist elsewhere.</p>
+    <p class="muted">Each white dot on the heatmap is one. The gold dot is the single <b>global</b> optimum.</p>` },
+  basin: { title:'Basin of attraction', html:`
+    <p>The set of genotypes that a hill-climber, always stepping uphill, ends up funnelling into the same peak. Big
+       basin = easy to stumble onto that peak; tiny basin = practically invisible.</p>
+    <p class="muted">As K grows the basins fragment, so the global peak's basin can shrink below 1% — present, but
+       almost never reached by local search.</p>` },
+  graycode: { title:'Gray-code layout', html:`
+    <p>An ordering of binary strings where <b>consecutive values differ by exactly one bit</b>. Using it on both axes
+       means any two squares sharing an edge are genuine 1-mutation neighbours.</p>
+    <p class="muted">So spatial smoothness in the picture really does correspond to smoothness in the search space —
+       it isn't an artefact of the layout.</p>` },
+  separable: { title:'Separable (additive) fitness', html:`
+    <p>With K = 0 the total is just a sum of independent per-gene scores. Flipping one gene shifts fitness by a fixed
+       amount regardless of the rest, so the two heatmap axes simply add — giving <b>plaid stripes</b>.</p>
+    <p class="muted">Separable problems have a single peak and are trivial for hill-climbing — the same reason the
+       <a href="../methinks/" style="color:var(--accent)">weasel</a> is easy.</p>` },
+  intermediateK: { title:'The sweet spot of complexity', html:`
+    <p>Raising K adds more peaks, and with more peaks the <b>best</b> one tends to be taller — so global-peak fitness
+       climbs as K goes up from 0. But past a point the basins fragment so badly that those tall peaks become
+       unreachable.</p>
+    <p class="muted">Moderate epistasis gives the best of both: high peaks you can still find. Kauffman argued
+       evolution tunes itself toward this edge.</p>` },
+};
+(function(){
+  const pop=document.getElementById('pop'); let pinned=null;
+  function show(el){ const d=POP[el.dataset.pop]; if(!d) return;
+    pop.innerHTML='<h4>'+d.title+'</h4>'+d.html; pop.classList.add('show');
+    const r=el.getBoundingClientRect(), p=pop.getBoundingClientRect(), m=10;
+    let left=Math.max(m, Math.min(r.left+r.width/2-p.width/2, innerWidth-p.width-m));
+    let top=r.top-p.height-10; if(top<m) top=r.bottom+10;
+    pop.style.left=left+'px'; pop.style.top=top+'px'; }
+  function hide(){ pop.classList.remove('show'); }
+  document.querySelectorAll('.x').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button');
+    el.addEventListener('mouseenter',()=>{ if(!pinned) show(el); });
+    el.addEventListener('mouseleave',()=>{ if(!pinned) hide(); });
+    el.addEventListener('focus',()=>{ if(!pinned) show(el); });
+    el.addEventListener('blur',()=>{ if(!pinned) hide(); });
+    el.addEventListener('click',e=>{ e.stopPropagation(); if(pinned===el){ pinned=null; hide(); } else { pinned=el; show(el); } });
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } }); });
+  pop.addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',()=>{ if(pinned){ pinned=null; hide(); } });
+  addEventListener('keydown',e=>{ if(e.key==='Escape'&&pinned){ pinned=null; hide(); } });
+  addEventListener('scroll',()=>{ if(pinned) show(pinned); }, true);
 })();
 </script>
 </body>

@@ -77,6 +77,30 @@
   .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:middle}
   .note{color:var(--muted);font-size:13px;line-height:1.6;margin-top:16px;max-width:700px}
   .note b{color:var(--ink)}
+
+  /* "things to notice" + hover-explain popovers (ported from Chiron) */
+  .notice{margin-top:34px;border-top:1px solid var(--line);padding-top:24px}
+  .notice-title{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);margin:0 0 14px;font-weight:600}
+  .notice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.notice-grid{grid-template-columns:1fr}}
+  .ncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .ncard h3{margin:0 0 7px;font-size:14px;font-weight:600}
+  .ncard p{margin:0 0 11px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .x{color:var(--accent);border-bottom:1px dotted currentColor;cursor:help;white-space:nowrap}
+  .x::after{content:'ⓘ';font-size:.7em;vertical-align:.35em;margin-left:1px;opacity:.7}
+  .x:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+  #pop{position:fixed;z-index:60;max-width:300px;background:#15151f;border:1px solid #2e2e3e;
+    border-radius:12px;padding:13px 15px;box-shadow:0 22px 55px -16px #000,0 0 0 1px #000;
+    font-size:13px;line-height:1.55;visibility:hidden;opacity:0;transform:translateY(4px);
+    pointer-events:none;transition:opacity .13s,transform .13s}
+  #pop.show{visibility:visible;opacity:1;transform:none;pointer-events:auto}
+  #pop h4{margin:0 0 7px;font-size:13.5px;color:var(--accent)}
+  #pop p{margin:0 0 8px}#pop p:last-child{margin:0}
+  #pop b{color:var(--ink);font-weight:600}
+  #pop .muted{color:var(--muted);font-size:12px}
+  #pop .eq{font-family:var(--mono);background:#0e0e16;border:1px solid var(--line);border-radius:7px;
+    padding:8px 10px;margin:9px 0;font-size:13px;text-align:center;color:#e6ebff}
+  #pop .fig{display:block;margin:9px auto 5px}
   footer{margin-top:46px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.7}
   footer a{color:var(--accent);text-decoration:none}
 </style>
@@ -90,10 +114,11 @@
     <p class="lede">
       The <b>Hierarchical If-and-only-iff</b> problem (Watson, Hornby &amp; Pollack, 1998) is the deliberate
       opposite of the <a href="../methinks/" style="color:var(--accent)">weasel</a>: a fitness function built
-      from <b>nested building blocks</b> that conflict at every scale. A block of bits is rewarded only when it's
-      <b>all-0</b> or <b>all-1</b>; blocks combine into bigger blocks, all the way up. Mutation and hill-climbing
-      get trapped — <b>crossover</b> is what assembles the hierarchy. <b>Watch</b> it build, then <b>Race</b>
-      mutation against recombination.
+      from <span class="x" data-pop="buildingblock">nested building blocks</span> that
+      <span class="x" data-pop="epistasis">conflict</span> at every scale. A block of bits is rewarded only when
+      it's <b>all-0</b> or <b>all-1</b>; blocks combine into bigger blocks, all the way up. Mutation and
+      hill-climbing get trapped — <span class="x" data-pop="crossover">crossover</span> is what assembles the
+      hierarchy. <b>Watch</b> it build, then <b>Race</b> mutation against recombination.
     </p>
   </header>
 
@@ -208,12 +233,37 @@
       <span>— — — global optimum</span>
     </div>
     <p class="note">
-      Both lanes use the <b>same</b> algorithm — deterministic crowding, which preserves population diversity —
-      so the <b>only</b> difference is whether children are made by recombining two parents or just mutating one.
+      Both lanes use the <b>same</b> algorithm — <span class="x" data-pop="dc">deterministic crowding</span>, which
+      preserves population diversity — so the <b>only</b> difference is whether children are made by recombining
+      two parents or just mutating one.
       Watch mutation's fitness <b>plateau</b> on a patchwork of conflicting blocks, while crossover climbs in
       <b>steps</b>, each step a level of the hierarchy snapping into place. This is the building-block hypothesis
       made visible — and the heart of why evolution invented sex.
     </p>
+  </section>
+
+  <section class="notice">
+    <h2 class="notice-title">Things to notice</h2>
+    <div class="notice-grid">
+      <div class="ncard">
+        <h3>The patchwork trap</h3>
+        <p>Watch the mutation-only lane freeze with a fitness short of the top. It has solved every small block — but
+          some as <code>00</code> and some as <code>11</code>, which can never merge. Escaping needs a
+          <span class="x" data-pop="deadlock">coordinated multi-bit flip</span> that single mutations won't make.</p>
+      </div>
+      <div class="ncard">
+        <h3>Two optima, poles apart</h3>
+        <p>All-0s and all-1s are <em>both</em> perfect — and they differ in every single bit. Runs settle on the
+          all-blue or all-pink pyramid at random; the <span class="x" data-pop="twoptima">symmetry</span> is exactly
+          what makes the top of the hierarchy so hard.</p>
+      </div>
+      <div class="ncard">
+        <h3>Why population size matters</h3>
+        <p>Drop the population too low and even crossover stalls. Recombination can only combine building blocks that
+          actually exist in <em>different</em> members, so it needs enough
+          <span class="x" data-pop="diversity">diversity</span> to draw on.</p>
+      </div>
+    </div>
   </section>
 
   <footer>
@@ -450,6 +500,75 @@ document.querySelectorAll('.tab').forEach(t=>{
   $('r-odds').oninput=ev=>{ $('r-odds-v').textContent=(+ev.target.value).toFixed(1)+'×'; };
   build();
   window.addEventListener('resize',()=>{ if(mut){ draw(); drawChart(); } });
+})();
+</script>
+
+<div id="pop" role="tooltip"></div>
+<script>
+const POP = {
+  buildingblock: { title:'Building block', html:`
+    <p>A chunk of the genome that's worth something <b>as a unit</b> — here, a contiguous block that pays off only
+       when all its bits agree. HIFF stacks them: blocks of 2 combine into blocks of 4, then 8, all the way up.</p>
+    <p class="muted">The whole point of crossover is to copy a good block from one parent into another intact.</p>` },
+  epistasis: { title:'Conflicting blocks', html:`
+    <p>The blocks <b>fight</b>. A pair solved as <code>00</code> and its neighbour solved as <code>11</code> are each
+       locally perfect, yet together they block the size-4 reward, which needs all four equal.</p>
+    <p class="muted">This dependency between parts — where the best move for one depends on the others — is
+       <b>epistasis</b>, and it's what makes a landscape rugged.</p>` },
+  crossover: { title:'Crossover assembles', html:`
+    <p>If one parent has a clean all-0 left half and another a clean all-0 right half, uniform crossover can splice
+       them into a correct, larger all-0 block in a single shot.</p>
+    <p class="muted">Mutation can only nudge one bit at a time, so it can't make that leap without first going
+       downhill. Recombination <b>composes</b> solutions instead of tweaking them.</p>` },
+  dc: { title:'Deterministic crowding', html:`
+    <p>A diversity-preserving GA: a child competes only against the <b>parent it most resembles</b>, replacing it if
+       fitter. Similar solutions fight each other, so different niches survive side by side.</p>
+    <p class="muted">Without it the population collapses onto one pattern and crossover has nothing to recombine.
+       It's the scaffolding that lets recombination work on HIFF at all.</p>` },
+  deadlock: { title:'The conflicting-block deadlock', html:`
+    <p>To merge <code>00</code> and <code>11</code> into a uniform block you must flip a whole sub-block at once —
+       temporarily <b>breaking</b> an already-solved piece and losing fitness on the way.</p>
+    <svg class="fig" width="210" height="44" viewBox="0 0 210 44" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="monospace" font-size="15" fill="#e7e7ef">
+        <rect x="6" y="8" width="26" height="26" rx="4" fill="#5aa9ff"/><text x="13" y="27">00</text>
+        <rect x="36" y="8" width="26" height="26" rx="4" fill="#ff7aa2"/><text x="43" y="27">11</text>
+        <text x="78" y="27" fill="#8a8a9c">→ flip →</text>
+        <rect x="150" y="8" width="26" height="26" rx="4" fill="#5aa9ff"/><text x="157" y="27">00</text>
+        <rect x="180" y="8" width="26" height="26" rx="4" fill="#5aa9ff"/><text x="187" y="27">00</text>
+      </g>
+    </svg>
+    <p class="muted">A hill-climber refuses the downhill step, so it sits trapped forever on the patchwork.</p>` },
+  twoptima: { title:'A symmetric pair of optima', html:`
+    <p>All-0s and all-1s both score the maximum, and they're <b>maximally distant</b> — every bit differs. There's
+       no gradient telling the population which global answer to commit to.</p>
+    <p class="muted">Half the population can drift toward each, locking the top level into permanent disagreement
+       unless recombination can resolve it.</p>` },
+  diversity: { title:'Diversity is the fuel', html:`
+    <p>Crossover only combines blocks that already exist somewhere in the population. If everyone has converged to the
+       same string, recombining two identical parents yields… the same string.</p>
+    <p class="muted">That's why a bigger population (and deterministic crowding) matters: it keeps competing
+       building blocks alive long enough to be assembled.</p>` },
+};
+(function(){
+  const pop=document.getElementById('pop'); let pinned=null;
+  function show(el){ const d=POP[el.dataset.pop]; if(!d) return;
+    pop.innerHTML='<h4>'+d.title+'</h4>'+d.html; pop.classList.add('show');
+    const r=el.getBoundingClientRect(), p=pop.getBoundingClientRect(), m=10;
+    let left=Math.max(m, Math.min(r.left+r.width/2-p.width/2, innerWidth-p.width-m));
+    let top=r.top-p.height-10; if(top<m) top=r.bottom+10;
+    pop.style.left=left+'px'; pop.style.top=top+'px'; }
+  function hide(){ pop.classList.remove('show'); }
+  document.querySelectorAll('.x').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button');
+    el.addEventListener('mouseenter',()=>{ if(!pinned) show(el); });
+    el.addEventListener('mouseleave',()=>{ if(!pinned) hide(); });
+    el.addEventListener('focus',()=>{ if(!pinned) show(el); });
+    el.addEventListener('blur',()=>{ if(!pinned) hide(); });
+    el.addEventListener('click',e=>{ e.stopPropagation(); if(pinned===el){ pinned=null; hide(); } else { pinned=el; show(el); } });
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } }); });
+  pop.addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',()=>{ if(pinned){ pinned=null; hide(); } });
+  addEventListener('keydown',e=>{ if(e.key==='Escape'&&pinned){ pinned=null; hide(); } });
+  addEventListener('scroll',()=>{ if(pinned) show(pinned); }, true);
 })();
 </script>
 </body>

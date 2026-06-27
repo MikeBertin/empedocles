@@ -101,6 +101,37 @@
   .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:middle}
   .note{color:var(--muted);font-size:13px;line-height:1.6;margin-top:16px;max-width:680px}
   .note b{color:var(--ink)}
+
+  /* two-column Watch layout: live output left, controls right */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:20px;align-items:start;margin-bottom:6px}
+  @media (max-width:780px){.layout{grid-template-columns:1fr}}
+  .main{min-width:0}
+  .side .controls{margin-bottom:0;margin-top:12px}
+  .side .btns{margin-bottom:0}
+
+  /* "things to notice" + hover-explain popovers (ported from Chiron) */
+  .notice{margin-top:34px;border-top:1px solid var(--line);padding-top:24px}
+  .notice-title{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);margin:0 0 14px;font-weight:600}
+  .notice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.notice-grid{grid-template-columns:1fr}}
+  .ncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .ncard h3{margin:0 0 7px;font-size:14px;font-weight:600}
+  .ncard p{margin:0 0 11px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .x{color:var(--accent);border-bottom:1px dotted currentColor;cursor:help;white-space:nowrap}
+  .x::after{content:'ⓘ';font-size:.7em;vertical-align:.35em;margin-left:1px;opacity:.7}
+  .x:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+  #pop{position:fixed;z-index:60;max-width:300px;background:#15151f;border:1px solid #2e2e3e;
+    border-radius:12px;padding:13px 15px;box-shadow:0 22px 55px -16px #000,0 0 0 1px #000;
+    font-size:13px;line-height:1.55;visibility:hidden;opacity:0;transform:translateY(4px);
+    pointer-events:none;transition:opacity .13s,transform .13s}
+  #pop.show{visibility:visible;opacity:1;transform:none;pointer-events:auto}
+  #pop h4{margin:0 0 7px;font-size:13.5px;color:var(--accent)}
+  #pop p{margin:0 0 8px}#pop p:last-child{margin:0}
+  #pop b{color:var(--ink);font-weight:600}
+  #pop .muted{color:var(--muted);font-size:12px}
+  #pop .eq{font-family:var(--mono);background:#0e0e16;border:1px solid var(--line);border-radius:7px;
+    padding:8px 10px;margin:9px 0;font-size:13px;text-align:center;color:#e6ebff}
+  #pop .fig{display:block;margin:9px auto 5px}
   footer{margin-top:46px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.7}
   footer a{color:var(--accent);text-decoration:none}
 </style>
@@ -112,11 +143,12 @@
     <div class="badge">The Weasel Program</div>
     <h1>Methinks it is like a weasel</h1>
     <p class="lede">
-      Dawkins' famous illustration that <b>cumulative selection</b> is nothing like blind chance.
-      A population of random strings mutates and reproduces toward a target sentence. The twist
-      this coursework asks: does <b>crossover</b> actually help — and how does a hill-climber compare
-      to a genetic algorithm? <b>Watch</b> it converge, <b>Race</b> the three methods, then run the
-      <b>Lab</b> experiments yourself.
+      Dawkins' famous illustration that <span class="x" data-pop="cumulative">cumulative selection</span> is
+      nothing like blind chance. A population of random strings mutates and reproduces toward a target sentence.
+      The twist this coursework asks: does <span class="x" data-pop="crossover">crossover</span> actually help —
+      and how does a <span class="x" data-pop="hillclimb">hill-climber</span> compare to a
+      <span class="x" data-pop="ga">genetic algorithm</span>? <b>Watch</b> it converge, <b>Race</b> the three
+      methods, then run the <b>Lab</b> experiments yourself.
     </p>
   </header>
 
@@ -128,46 +160,51 @@
 
   <!-- ===================== WATCH ===================== -->
   <section class="panel on" id="watch">
-    <div class="controls">
-      <div class="ctl" style="grid-column:1/-1">
-        <label for="w-target">Target string</label>
-        <input type="text" id="w-target" value="methinks it is like a weasel" maxlength="80">
+    <div class="layout">
+      <div class="main">
+        <div class="stats">
+          <div class="stat"><span class="k">Generation</span><span class="v" id="w-gen">0</span></div>
+          <div class="stat"><span class="k">Fitness evals</span><span class="v" id="w-eval">0</span></div>
+          <div class="stat"><span class="k">Best fitness</span><span class="v" id="w-fit">0 / 0</span></div>
+        </div>
+        <div class="best" id="w-best"></div>
+        <div class="pop" id="w-pop-view"></div>
       </div>
-      <div class="ctl">
-        <label for="w-method">Method</label>
-        <select id="w-method">
-          <option value="Hillclimber">Hill-climber</option>
-          <option value="GA" selected>GA (no crossover)</option>
-          <option value="GA with crossover">GA (with crossover)</option>
-        </select>
-      </div>
-      <div class="ctl">
-        <label>Population size · <span class="val" id="w-pop-v">100</span></label>
-        <input type="range" id="w-pop" min="2" max="500" value="100" step="1">
-      </div>
-      <div class="ctl">
-        <label>Mutation · <span class="val" id="w-odds-v">1.0×</span> (1/L)</label>
-        <input type="range" id="w-odds" min="0.1" max="5" value="1" step="0.1">
-      </div>
-      <div class="ctl">
-        <label>Speed · <span class="val" id="w-speed-v">medium</span></label>
-        <input type="range" id="w-speed" min="1" max="6" value="3" step="1">
-      </div>
-    </div>
-    <div class="btns">
-      <button class="act" id="w-run">Run</button>
-      <button class="ghost" id="w-step">Step</button>
-      <button class="ghost" id="w-reset">Reset</button>
-    </div>
 
-    <div class="stats">
-      <div class="stat"><span class="k">Generation</span><span class="v" id="w-gen">0</span></div>
-      <div class="stat"><span class="k">Fitness evals</span><span class="v" id="w-eval">0</span></div>
-      <div class="stat"><span class="k">Best fitness</span><span class="v" id="w-fit">0 / 0</span></div>
+      <aside class="side">
+        <div class="btns">
+          <button class="act" id="w-run">Run</button>
+          <button class="ghost" id="w-step">Step</button>
+          <button class="ghost" id="w-reset">Reset</button>
+        </div>
+        <div class="controls">
+          <div class="ctl">
+            <label for="w-target">Target string</label>
+            <input type="text" id="w-target" value="methinks it is like a weasel" maxlength="80">
+          </div>
+          <div class="ctl">
+            <label for="w-method">Method</label>
+            <select id="w-method">
+              <option value="Hillclimber">Hill-climber</option>
+              <option value="GA" selected>GA (no crossover)</option>
+              <option value="GA with crossover">GA (with crossover)</option>
+            </select>
+          </div>
+          <div class="ctl">
+            <label>Population size · <span class="val" id="w-pop-v">100</span></label>
+            <input type="range" id="w-pop" min="2" max="500" value="100" step="1">
+          </div>
+          <div class="ctl">
+            <label>Mutation · <span class="val" id="w-odds-v">1.0×</span> (1/L)</label>
+            <input type="range" id="w-odds" min="0.1" max="5" value="1" step="0.1">
+          </div>
+          <div class="ctl">
+            <label>Speed · <span class="val" id="w-speed-v">medium</span></label>
+            <input type="range" id="w-speed" min="1" max="6" value="3" step="1">
+          </div>
+        </div>
+      </aside>
     </div>
-
-    <div class="best" id="w-best"></div>
-    <div class="pop" id="w-pop-view"></div>
     <p class="note">
       The <b>population</b> is shown live; matched characters glow green. A <b>fitness evaluation</b> is one
       comparison of a candidate against the target — the true currency of evolutionary search, since it's the
@@ -266,6 +303,30 @@
       <b>population size</b>, averaged over many runs, for each method. It's the browser version of the
       matplotlib figure from the original Python — but you can drag the sliders and watch the curves move.
     </p>
+  </section>
+
+  <section class="notice">
+    <h2 class="notice-title">Things to notice</h2>
+    <div class="notice-grid">
+      <div class="ncard">
+        <h3>Crossover's modest edge</h3>
+        <p>Race them and crossover wins, but only by roughly half — not the landslide you might expect. The weasel
+          target is <span class="x" data-pop="separable">separable</span>: every character is its own tiny building
+          block, so there's little structure for recombination to exploit.</p>
+      </div>
+      <div class="ncard">
+        <h3>The hill-climber's hidden cost</h3>
+        <p>In the Lab its curve rockets upward with population size. A population of hill-climbers re-tests
+          <em>every</em> member each generation, so its <span class="x" data-pop="evalcost">fitness-evaluation</span>
+          bill balloons while the GAs stay lean.</p>
+      </div>
+      <div class="ncard">
+        <h3>The mutation sweet spot</h3>
+        <p>Push the mutation slider far either way and convergence stalls. Too little and errors take forever to
+          fix; too much and selection can't <em>hold onto</em> a correct character — the
+          <span class="x" data-pop="errorcat">error catastrophe</span>.</p>
+      </div>
+    </div>
   </section>
 
   <footer>
@@ -573,6 +634,69 @@ document.querySelectorAll('.tab').forEach(t=>{
   $('l-scale').onclick=()=>{ logScale=!logScale; $('l-scale').textContent='y-axis: '+(logScale?'log':'linear');
     if(last) drawChart(last.xs, last.series, last.upto); };
   drawChart([0],{Hillclimber:[],GA:[],'GA with crossover':[]},0);
+})();
+</script>
+
+<div id="pop" role="tooltip"></div>
+<script>
+const POP = {
+  cumulative: { title:'Cumulative selection', html:`
+    <p>Dawkins' point: evolution doesn't reroll the whole sentence each try. It <b>keeps the partial progress</b>
+       and builds on it, generation after generation.</p>
+    <p class="muted">Single-step random search would need ~27²⁸ tries; cumulative selection gets there in a few
+       hundred. Selection ratchets — that's the entire difference.</p>` },
+  crossover: { title:'Uniform crossover', html:`
+    <p>Make a child from two parents by taking each character from one parent or the other, <b>50/50</b>. It
+       recombines whole solutions rather than nudging one.</p>
+    <div class="eq">child[i] = rand &lt; 0.5 ? a[i] : b[i]</div>
+    <p class="muted">Powerful when good "chunks" live on different individuals — the theme that
+       <a href="../hiff/" style="color:var(--accent)">HIFF</a> pushes to the limit.</p>` },
+  hillclimb: { title:'Hill-climber', html:`
+    <p>The simplest search: mutate an individual, <b>keep the mutant only if it's at least as fit</b>, repeat. No
+       population mixing, no recombination — just climb.</p>
+    <p class="muted">Here each population member climbs independently, so the run ends when the first one reaches the
+       target.</p>` },
+  ga: { title:'Genetic algorithm', html:`
+    <p>A population under <b>selection</b> plus variation. This one is steady-state: pick the fitter of two random
+       individuals (<b>tournament selection</b>), copy/recombine it, mutate, and overwrite a poor individual.</p>
+    <p class="muted">The "no crossover" variant skips recombination, isolating exactly what crossover buys.</p>` },
+  separable: { title:'Separable problem', html:`
+    <p>Total fitness is just a <b>sum of independent per-character scores</b>. Fixing one letter never helps or
+       hurts another, so there are no higher-order building blocks to assemble.</p>
+    <p class="muted">That's why crossover only helps a little here — and why the deliberately non-separable
+       <a href="../hiff/" style="color:var(--accent)">HIFF</a> problem makes it essential.</p>` },
+  evalcost: { title:'Fitness evaluations', html:`
+    <p>One comparison of a candidate against the target. It's the <b>true currency</b> of search — in any real
+       problem, evaluating fitness is the expensive step, so we count evaluations, not wall-clock.</p>
+    <p class="muted">A population hill-climber spends <b>POPSIZE</b> evaluations every generation, so its bill grows
+       with population while the steady-state GAs spend one or two per step.</p>` },
+  errorcat: { title:'Error catastrophe', html:`
+    <p>Above a critical mutation rate, selection can no longer <b>retain</b> a discovered solution — mutations
+       destroy correct characters as fast as they're found, and the population melts back into noise.</p>
+    <div class="eq">per-char rate = 1 / (odds · L)</div>
+    <p class="muted">The sweet spot sits near one expected mutation per string (≈ 1/L). Eigen called the threshold
+       the error catastrophe.</p>` },
+};
+(function(){
+  const pop=document.getElementById('pop'); let pinned=null;
+  function show(el){ const d=POP[el.dataset.pop]; if(!d) return;
+    pop.innerHTML='<h4>'+d.title+'</h4>'+d.html; pop.classList.add('show');
+    const r=el.getBoundingClientRect(), p=pop.getBoundingClientRect(), m=10;
+    let left=Math.max(m, Math.min(r.left+r.width/2-p.width/2, innerWidth-p.width-m));
+    let top=r.top-p.height-10; if(top<m) top=r.bottom+10;
+    pop.style.left=left+'px'; pop.style.top=top+'px'; }
+  function hide(){ pop.classList.remove('show'); }
+  document.querySelectorAll('.x').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button');
+    el.addEventListener('mouseenter',()=>{ if(!pinned) show(el); });
+    el.addEventListener('mouseleave',()=>{ if(!pinned) hide(); });
+    el.addEventListener('focus',()=>{ if(!pinned) show(el); });
+    el.addEventListener('blur',()=>{ if(!pinned) hide(); });
+    el.addEventListener('click',e=>{ e.stopPropagation(); if(pinned===el){ pinned=null; hide(); } else { pinned=el; show(el); } });
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } }); });
+  pop.addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',()=>{ if(pinned){ pinned=null; hide(); } });
+  addEventListener('keydown',e=>{ if(e.key==='Escape'&&pinned){ pinned=null; hide(); } });
+  addEventListener('scroll',()=>{ if(pinned) show(pinned); }, true);
 })();
 </script>
 </body>
