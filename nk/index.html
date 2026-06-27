@@ -69,6 +69,12 @@
   .note{color:var(--muted);font-size:13px;line-height:1.6;margin-top:16px;max-width:710px}
   .note b{color:var(--ink)}
 
+  /* two-column Landscape layout: heatmap left, controls right */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:20px;align-items:start;margin-bottom:6px}
+  @media (max-width:780px){.layout{grid-template-columns:1fr}}
+  .main{min-width:0}
+  .side .controls{margin:0}
+
   /* "things to notice" + hover-explain popovers (ported from Chiron) */
   .notice{margin-top:34px;border-top:1px solid var(--line);padding-top:24px}
   .notice-title{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);margin:0 0 14px;font-weight:600}
@@ -121,40 +127,45 @@
 
   <!-- ===================== LANDSCAPE ===================== -->
   <section class="panel on" id="land">
-    <div class="controls">
-      <div class="ctl">
-        <label>Genes · <span class="val" id="l-n-v">10</span> <span class="hint">(2<sup id="l-n-pow">10</sup> genotypes)</span></label>
-        <input type="range" id="l-n" min="6" max="14" value="10" step="1">
+    <div class="layout">
+      <div class="main">
+        <div class="stats">
+          <div class="stat"><span class="k">Local optima</span><span class="v" id="l-opt">—</span></div>
+          <div class="stat"><span class="k">Global peak fitness</span><span class="v gold" id="l-gfit">—</span></div>
+          <div class="stat"><span class="k">Hill-climb finds best</span><span class="v" id="l-basin">—</span></div>
+        </div>
+        <canvas id="l-canvas" height="440"></canvas>
+        <div class="legend">
+          <span>fitness&nbsp; low <span id="l-bar" style="display:inline-block;width:120px;height:11px;border-radius:3px;vertical-align:middle;margin:0 6px"></span> high</span>
+          <span><i style="background:var(--gold)"></i>global optimum</span>
+          <span><i style="background:#fff"></i>other local optima</span>
+        </div>
       </div>
-      <div class="ctl">
-        <label>Epistasis K · <span class="val" id="l-k-v">2</span> <span class="hint">(ruggedness)</span></label>
-        <input type="range" id="l-k" min="0" max="9" value="2" step="1">
-      </div>
-      <div class="ctl" style="justify-content:flex-end">
-        <button class="ghost" id="l-reseed">Reseed landscape</button>
-      </div>
-    </div>
 
-    <div class="stats">
-      <div class="stat"><span class="k">Local optima</span><span class="v" id="l-opt">—</span></div>
-      <div class="stat"><span class="k">Global peak fitness</span><span class="v gold" id="l-gfit">—</span></div>
-      <div class="stat"><span class="k">Hill-climb finds best</span><span class="v" id="l-basin">—</span></div>
+      <aside class="side">
+        <div class="controls">
+          <div class="ctl">
+            <label>Genes · <span class="val" id="l-n-v">10</span> <span class="hint">(2<sup id="l-n-pow">10</sup> genotypes)</span></label>
+            <input type="range" id="l-n" min="6" max="14" value="10" step="1">
+          </div>
+          <div class="ctl">
+            <label>Epistasis K · <span class="val" id="l-k-v">2</span> <span class="hint">(ruggedness)</span></label>
+            <input type="range" id="l-k" min="0" max="9" value="2" step="1">
+          </div>
+          <div class="ctl">
+            <button class="ghost" id="l-reseed">Reseed landscape</button>
+          </div>
+        </div>
+        <p class="note" style="margin-top:14px">
+          Each tiny square is one <b>genotype</b>, laid out so that <b>neighbouring squares differ by a single
+          mutation</b> (both axes run in <span class="x" data-pop="graycode">Gray-code order</span>). Colour is
+          fitness. At K&nbsp;=&nbsp;0 you get <b>smooth patches</b> — a real hill you can climb — because a gene's
+          effect doesn't depend on the others. Raise K and the picture breaks into <b>static</b>: a
+          <b>local optimum</b> (a square fitter than all its neighbours) appears almost everywhere, and a
+          hill-climber landing on the <b>global</b> peak (gold) goes from a sure thing to a long shot.
+        </p>
+      </aside>
     </div>
-
-    <canvas id="l-canvas" height="440"></canvas>
-    <div class="legend">
-      <span>fitness&nbsp; low <span id="l-bar" style="display:inline-block;width:120px;height:11px;border-radius:3px;vertical-align:middle;margin:0 6px"></span> high</span>
-      <span><i style="background:var(--gold)"></i>global optimum</span>
-      <span><i style="background:#fff"></i>other local optima</span>
-    </div>
-    <p class="note">
-      Each tiny square is one <b>genotype</b>, laid out so that <b>neighbouring squares differ by a single mutation</b>
-      (both axes run in <span class="x" data-pop="graycode">Gray-code order</span>). Colour is fitness. At
-      K&nbsp;=&nbsp;0 you get <b>smooth patches</b> — a real
-      hill you can climb — because a gene's effect doesn't depend on the others. Raise K and the picture breaks into
-      <b>static</b>: a <b>local optimum</b> (a square fitter than all its neighbours) appears almost everywhere, and
-      a hill-climber landing on the <b>global</b> peak (gold) goes from a sure thing to a long shot.
-    </p>
   </section>
 
   <!-- ===================== LAB ===================== -->
