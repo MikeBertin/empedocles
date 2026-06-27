@@ -456,14 +456,18 @@ document.querySelectorAll('.tab').forEach(t=>{
   function loop(){
     const cap = Math.min(mut.L*15000, 1500000); // bounded budget so big-L runs don't hang
     for(let s=0;s<600;s++){
-      if(!cross.done) cross.step();
-      if(mut.evals<cross.evals*1.05 && !mut.done) mut.step(); // keep evals roughly aligned
+      if(!cross.done && cross.evals<cap) cross.step();
+      if(!mut.done && mut.evals<cap && mut.evals<cross.evals*1.05) mut.step(); // keep evals roughly aligned
     }
     sample(mut); sample(cross);
     if(cross.done && !$('r-col-cross').classList.contains('win')) $('r-col-cross').classList.add('win');
     draw(); drawChart();
-    const stop = (cross.done && mut.evals>=cross.evals) || cross.evals>cap;
-    if(stop){ end(); return; }
+    // stop only when BOTH engines have settled — solved, hit the eval cap, or (for mutation)
+    // caught up to crossover's evaluation count. Guards against an infinite loop when mutation
+    // finishes at fewer evaluations than crossover.
+    const crossSettled = cross.done || cross.evals>=cap;
+    const mutSettled = mut.done || mut.evals>=cap || mut.evals>=cross.evals;
+    if(crossSettled && mutSettled){ end(); return; }
     raf=requestAnimationFrame(loop);
   }
   function start(){ if(running) return; build(); running=true; $('r-run').textContent='Running…'; $('r-run').disabled=true; loop(); }
