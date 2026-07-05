@@ -64,10 +64,8 @@ Then visit <http://localhost:8741>.
 
 ## The name
 
-Named for [Empedocles](https://en.wikipedia.org/wiki/Empedocles) (c. 494–434 BC), the
-pre-Socratic philosopher who imagined living things assembled from randomly combined
+The project is named for [Empedocles](https://en.wikipedia.org/wiki/Empedocles) (c. 494–434 BC),
+the pre-Socratic philosopher who imagined living things assembled from randomly combined
 parts — heads, limbs, organs — with only the viable combinations surviving and reproducing.
-An ancient, startlingly Darwinian glimpse of natural selection, twenty-three centuries early.
-
-A companion to [Chiron](https://github.com/mikebertin/chiron), my computational-physics
-playground from undergrad.
+An ancient, startlingly Darwinian glimpse of natural selection, twenty-three centuries early —
+and a fitting namesake for a set of demos about how blind variation and selection build complexity.

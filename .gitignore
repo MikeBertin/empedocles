@@ -1,4 +1,13 @@
 .DS_Store
+node_modules/
+
+# demo.gif capture intermediates (see demo-capture.js)
 *.webm
 palette.png
-node_modules/
+
+# Internal session handover, status & log docs — kept in the private Jarvis
+# backup, never in this public repo.
+HANDOVER.md
+STATUS.md
+log.md
+*.log
