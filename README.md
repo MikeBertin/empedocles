@@ -3,7 +3,7 @@
 **Evolutionary algorithms, in the browser.**
 
 Interactive demos from my MSc in Artificial Intelligence (University of Southampton),
-the *Evolution of Complexity* unit (COMP6202). Each one is a small window onto how blind
+the *Evolution of Complexity* unit. Each one is a small window onto how blind
 variation plus selection builds order — and onto the question that runs through the whole
 course: **when does recombination (sex) actually help evolution?** No build step, no
 dependencies, no server: everything runs entirely in the browser.
