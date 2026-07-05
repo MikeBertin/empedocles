@@ -10,6 +10,8 @@ dependencies, no server: everything runs entirely in the browser.
 
 🔗 **[Live site](https://mikebertin.github.io/empedocles/)**
 
+[![Three interactive evolutionary-algorithm demos — the weasel program converging, HIFF's mutation-vs-crossover race, and an NK fitness landscape morphing from smooth to rugged](demo.gif)](https://mikebertin.github.io/empedocles/)
+
 ## The demos
 
 | | | |
